@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        body{
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            margin: 0;
+            overflow: hidden
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+    <canvas id='canvas'></canvas>
+    <script>
+        let canvas = document.getElementById('canvas')
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+        let context = canvas.getContext('2d')
+        let stars = []
+
+        window.onload = () => {
+            init()
+        }
+
+        class Star {
+            constructor () {
+
+                this.x = Math.random() * window.innerWidth
+                this.y = Math.random() * window.innerHeight
+                this.length = Math.ceil(Math.random() * 80 + 250)
+
+                this.angle = 30
+                this.speed = Math.ceil(Math.random() + 2)
+                let cos = Math.cos(this.angle * 3.14 / 180)
+                let sin = Math.sin(this.angle * 3.14 / 180)
+                this.width = this.length * cos
+                this.height = this.length * sin
+                this.offset_x = this.speed * cos
+                this.offset_y = this.speed * sin
+
+                this.alpha = 1
+                this.color1 = 'rgb(86, 86, 86)'
+                this.color2 = '#000'
+            }
+            draw () {
+                let line = context.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height)
+                line.addColorStop(0, '#fff')
+                line.addColorStop(0.3, this.color1)
+                line.addColorStop(0.6, this.color2)
+                context.save()
+                context.beginPath()
+                context.lineWidth = 1
+                context.globalAlpha = this.alpha
+                context.strokeStyle = line
+                context.moveTo(this.x, this.y)
+                context.lineTo(this.x + this.width, this.y - this.height)
+                context.closePath()
+                context.stroke()
+                context.restore()
+            }
+            move () {
+                let x = this.x + this.width - this.offset_x
+                let y = this.y - this.height
+                context.clearRect(x - 3, y - 3, this.offset_x + 5, this.offset_y + 5)
+                this.x = this.x - this.offset_x
+                this.y = this.y + this.offset_y
+                this.alpha -= 0.007
+                this.draw()
+            }
+        }
+
+        function init () {
+           
+            for(let i = 0; i < 20; i++) {
+                let star = new Star()
+                stars.push(star)
+            }
+            drawStar()
+        }
+
+        function drawStar() {
+            for(let i = 0; i < 20; i++) {
+                stars[i].move()
+                if (stars[i].y > window.innerHeight + 100) {
+                    context.clearRect(stars[i].x, stars[i].y - stars[i].height, stars[i].width, stars[i].height)
+                    stars[i] = new Star()
+                }
+            }
+            setTimeout(() => {
+                drawStar()
+            }, 4);
+        }
+    </script>
+</body>
+</html>
